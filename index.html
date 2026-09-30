@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Web hub</title>
+<meta name="description" content="Web hub — สารบัญเว็บแอปของแผนก รวมทุกระบบไว้ในที่เดียว">
+<meta name="theme-color" content="#6d5dfc">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f4ff; --bg2:#ffffff; --card:#ffffffcc; --text:#1d1b35; --muted:#6b6887;
+  --line:#e6e3fb; --brand:#6d5dfc; --brand2:#ff6fae; --shadow:0 10px 30px -12px rgba(60,40,160,.25);
+  --c-central:#6d5dfc; --c-oprf:#ff8a3d; --c-srn:#1fb57a; --c-hafa:#ff5c8a;
+  --radius:20px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12111f; --bg2:#1b1a2e; --card:#1f1d35cc; --text:#f1efff; --muted:#a4a0c7;
+    --line:#2d2a4a; --shadow:0 10px 30px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12111f; --bg2:#1b1a2e; --card:#1f1d35cc; --text:#f1efff; --muted:#a4a0c7;
+  --line:#2d2a4a; --shadow:0 10px 30px -12px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; font-family:"Prompt",system-ui,sans-serif; color:var(--text); background:var(--bg);
+  min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased;
+}
+/* ลูกบอลสีลอยพื้นหลัง */
+.blobs{position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none}
+.blob{position:absolute; border-radius:50%; filter:blur(60px); opacity:.35; animation:float 18s ease-in-out infinite}
+.blob.b1{width:380px;height:380px;background:var(--brand);top:-120px;left:-100px}
+.blob.b2{width:320px;height:320px;background:var(--brand2);top:30%;right:-120px;animation-delay:-6s}
+.blob.b3{width:280px;height:280px;background:#2ec4b6;bottom:-100px;left:30%;animation-delay:-12s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-30px) scale(1.08)}66%{transform:translate(-30px,40px) scale(.95)}}
+
+.wrap{max-width:1180px; margin:0 auto; padding:24px 16px 48px}
+
+/* Header */
+header{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:22px}
+.logo{display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit}
+.logo-mark{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:26px;
+  background:linear-gradient(135deg,var(--brand),var(--brand2)); box-shadow:var(--shadow); animation:spin 8s linear infinite}
+@keyframes spin{0%,90%{transform:rotate(0)}95%{transform:rotate(-12deg)}100%{transform:rotate(0)}}
+.logo h1{margin:0;font-size:1.5rem;letter-spacing:-.02em;line-height:1}
+.logo h1 span{background:linear-gradient(90deg,var(--brand),var(--brand2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo small{color:var(--muted);font-size:.8rem}
+.icon-btn{width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--bg2);color:var(--text);
+  font-size:20px;cursor:pointer;display:grid;place-items:center;transition:transform .2s}
+.icon-btn:hover{transform:rotate(20deg) scale(1.08)}
+
+/* Hero */
+.hero{background:var(--card); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--line); border-radius:28px; padding:26px; box-shadow:var(--shadow); margin-bottom:22px}
+.greet{font-size:clamp(1.3rem,4vw,2rem); font-weight:700; margin:0 0 4px}
+.wave{display:inline-block; animation:wave 2.2s ease-in-out infinite; transform-origin:70% 70%}
+@keyframes wave{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(14deg)}20%{transform:rotate(-8deg)}40%{transform:rotate(-4deg)}50%{transform:rotate(10deg)}}
+.date{color:var(--muted); margin:0 0 18px; font-size:.95rem}
+.date b{color:var(--text); font-variant-numeric:tabular-nums}
+
+.search{position:relative}
+.search input{width:100%; padding:16px 52px 16px 52px; border-radius:18px; border:2px solid var(--line);
+  background:var(--bg2); color:var(--text); font:inherit; font-size:1rem; outline:none; transition:border-color .2s, box-shadow .2s}
+.search input:focus{border-color:var(--brand); box-shadow:0 0 0 5px color-mix(in srgb,var(--brand) 18%,transparent)}
+.search .s-ico{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-size:20px}
+.search kbd{position:absolute;right:14px;top:50%;transform:translateY(-50%);font:inherit;font-size:.75rem;color:var(--muted);
+  border:1px solid var(--line);border-radius:8px;padding:2px 8px;background:var(--bg)}
+
+.chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:16px}
+.chip{border:1px solid var(--line); background:var(--bg2); color:var(--text); font:inherit; font-size:.9rem;
+  padding:8px 14px; border-radius:999px; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:6px}
+.chip:hover{transform:translateY(-2px)}
+.chip.active{background:var(--text); color:var(--bg); border-color:var(--text)}
+.chip .n{font-size:.75rem; opacity:.65}
+
+/* Sections */
+.section{margin-top:28px; animation:rise .5s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.sec-head{display:flex; align-items:center; gap:10px; margin-bottom:12px}
+.sec-head .dot{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:18px;background:color-mix(in srgb,var(--c) 18%,transparent)}
+.sec-head h2{margin:0;font-size:1.15rem}
+.sec-head .cnt{color:var(--muted);font-size:.85rem}
+
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px}
+
+.card{position:relative; background:var(--card); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--line); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow);
+  transition:transform .25s cubic-bezier(.2,.8,.3,1.4), border-color .2s; overflow:hidden; animation:rise .45s ease both}
+.card::before{content:""; position:absolute; inset:0 0 auto 0; height:4px; background:var(--c)}
+.card:hover{transform:translateY(-5px) rotate(-.4deg); border-color:var(--c)}
+.card:active{transform:scale(.97)}
+.card a.stretch{position:absolute; inset:0; z-index:1; border-radius:var(--radius)}
+.card a.stretch:focus-visible{outline:3px solid var(--c); outline-offset:2px}
+.c-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px}
+.c-ico{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:28px;
+  background:color-mix(in srgb,var(--c) 16%,transparent); transition:transform .3s}
+.card:hover .c-ico{transform:scale(1.12) rotate(-8deg)}
+.star{position:relative; z-index:2; background:none; border:none; font-size:22px; cursor:pointer; padding:4px; line-height:1;
+  filter:grayscale(1); opacity:.45; transition:transform .2s, opacity .2s, filter .2s}
+.star:hover{opacity:1; transform:scale(1.2)}
+.star.on{filter:none; opacity:1}
+.c-name{font-weight:600; font-size:1.05rem; margin:14px 0 4px; line-height:1.35}
+.c-desc{color:var(--muted); font-size:.87rem; margin:0 0 12px; line-height:1.45}
+.c-foot{display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap}
+.badge{font-size:.72rem; padding:3px 10px; border-radius:999px; background:color-mix(in srgb,var(--c) 14%,transparent); color:var(--c); font-weight:600}
+.badge.net{background:color-mix(in srgb,#f5a524 16%,transparent); color:#c77d00}
+.host{font-size:.75rem; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%}
+.go{position:absolute; right:16px; bottom:14px; font-size:18px; opacity:0; transform:translateX(-6px); transition:all .25s; color:var(--c)}
+.card:hover .go{opacity:1; transform:none}
+
+.empty{text-align:center; padding:50px 16px; color:var(--muted)}
+.empty .big{font-size:56px; display:block; animation:wave 2s infinite}
+
+footer{text-align:center; color:var(--muted); font-size:.82rem; margin-top:44px}
+
+/* Toast + burst */
+.toast{position:fixed; left:50%; bottom:24px; transform:translate(-50%,120px); background:var(--text); color:var(--bg);
+  padding:12px 20px; border-radius:14px; font-size:.9rem; transition:transform .35s cubic-bezier(.2,.8,.3,1.3); z-index:50; box-shadow:var(--shadow)}
+.toast.show{transform:translate(-50%,0)}
+.burst{position:fixed; pointer-events:none; z-index:60; font-size:20px; animation:burst .9s ease-out forwards}
+@keyframes burst{to{transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(.4); opacity:0}}
+
+@media (max-width:560px){
+  .wrap{padding:16px 16px 40px}
+  .hero{padding:20px; border-radius:22px}
+  .grid{grid-template-columns:1fr 1fr; gap:10px}
+  .card{padding:14px}
+  .c-ico{width:44px;height:44px;font-size:22px;border-radius:13px}
+  .c-name{font-size:.95rem; margin-top:10px}
+  .c-desc{display:none}
+  .host{display:none}
+  .search kbd{display:none}
+  .search input{padding-right:16px}
+}
+@media (max-width:360px){ .grid{grid-template-columns:1fr} }
+@media (prefers-reduced-motion:reduce){ *{animation:none!important; transition:none!important} }
+</style>
+</head>
+<body>
+<div class="blobs"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+<div class="wrap">
+  <header>
+    <a class="logo" href="#">
+      <div class="logo-mark">🧭</div>
+      <div><h1>Web <span>hub</span></h1><small>ทุกระบบของแผนก ในที่เดียว</small></div>
+    </a>
+    <button class="icon-btn" id="themeBtn" title="สลับโหมดสว่าง/มืด" aria-label="สลับธีม">🌙</button>
+  </header>
+
+  <section class="hero">
+    <p class="greet"><span id="greetText">สวัสดี</span> <span class="wave">👋</span></p>
+    <p class="date" id="dateText"></p>
+    <div class="search">
+      <span class="s-ico">🔍</span>
+      <input id="q" type="search" placeholder="ค้นหาระบบ เช่น ลา, เบิก, KPI, ไม้สับ…" autocomplete="off" aria-label="ค้นหาระบบ">
+      <kbd>/</kbd>
+    </div>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <main id="list"></main>
+
+  <footer>Web hub · <span id="total"></span> · ระบบที่มีป้าย 🏢 ต้องเชื่อมเครือข่ายบริษัท</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   แก้ไขรายการเว็บได้ที่นี่ที่เดียว
+   ========================================================= */
+const CATS = {
+  central: { label: 'ส่วนกลาง', emoji: '🏢', color: 'var(--c-central)' },
+  oprf:    { label: 'OPRF',     emoji: '⚙️', color: 'var(--c-oprf)' },
+  srn:     { label: 'SRN',      emoji: '🌲', color: 'var(--c-srn)' },
+  hafa:    { label: 'HA-FA',    emoji: '🐣', color: 'var(--c-hafa)' },
+};
+
+const LINKS = [
+  { cat:'central', icon:'🏖️', name:'แจ้งลาออนไลน์',       desc:'ยื่นใบลาและตรวจสอบวันลา (ESS)',     url:'http://sfc.sungroup.co.th:8084/ess/' },
+  { cat:'central', icon:'📦', name:'เบิกของออนไลน์',       desc:'สร้างใบเบิกของผ่าน Inventory Plus', url:'http://smartweb.sungroup.co.th:8082/InventoryPlus/InventoryPlus/login?redirect=%2FInventoryPlus%2Frequisition%2Fcreate%2F' },
+  { cat:'central', icon:'💡', name:'ไคเซ็นออนไลน์',        desc:'ส่งไอเดียปรับปรุงงาน Kaizen',       url:'http://smartweb.sungroup.co.th:8082/Kaizen/#/kaizen' },
+  { cat:'central', icon:'📊', name:'KPI',                  desc:'ติดตามตัวชี้วัดของแผนก',             url:'https://sunfood-kpi.pages.dev/#dept=8' },
+  { cat:'central', icon:'🦺', name:'Work permission',      desc:'ขออนุญาตทำงาน (SHE)',               url:'http://smartweb.sungroup.co.th:8082/she/login' },
+  { cat:'oprf',    icon:'📝', name:'ระบบจดเครื่องออนไลน์',  desc:'บันทึกค่าเครื่องจักรออนไลน์',        url:'http://dss.sungroup.co.th/oprf-management' },
+  { cat:'oprf',    icon:'🗂️', name:'ระบบติดตามงาน Project', desc:'ติดตามความคืบหน้างานโปรเจกต์',       url:'http://dss.sungroup.co.th/oprf-projectcal' },
+  { cat:'srn',     icon:'🪵', name:'ระบบการจัดการไม้สับ',    desc:'แดชบอร์ดจัดการไม้สับ',               url:'https://sunfoodengop-spec.github.io/woodchip-management/#dashboard' },
+  { cat:'hafa',    icon:'🛠️', name:'ระบบแจ้งซ่อมฟาร์ม โรงฟัก', desc:'แจ้งซ่อมและติดตามงานฟาร์ม/โรงฟัก', url:'http://dss.sungroup.co.th/farm-mn/login' },
+];
+
+/* ---------- storage (กันพังถ้าเบราว์เซอร์ปิด storage) ---------- */
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem('webhub.'+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem('webhub.'+k, JSON.stringify(v)); }catch(e){} }
+};
+let favs   = new Set(store.get('favs', []));
+let clicks = store.get('clicks', {});
+let filter = 'all';
+
+const $ = s => document.querySelector(s);
+const hostOf = u => { try{ const x = new URL(u); return x.host; }catch(e){ return u; } };
+const isInternal = u => /sungroup\.co\.th/i.test(u);
+const norm = s => (s||'').toLowerCase().trim();
+
+/* ---------- greeting & clock ---------- */
+function tick(){
+  const d = new Date(), h = d.getHours();
+  const g = h < 5 ? 'ดึกแล้วนะ พักผ่อนด้วย' : h < 12 ? 'สวัสดีตอนเช้า' : h < 17 ? 'สวัสดีตอนบ่าย' : h < 19 ? 'สวัสดีตอนเย็น' : 'สวัสดีตอนค่ำ';
+  $('#greetText').textContent = g;
+  const date = d.toLocaleDateString('th-TH', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  const time = d.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  $('#dateText').innerHTML = `${date} · <b>${time}</b> น.`;
+}
+tick(); setInterval(tick, 1000);
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  if(t) document.documentElement.setAttribute('data-theme', t);
+  const dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  $('#themeBtn').textContent = dark ? '☀️' : '🌙';
+}
+applyTheme(store.get('theme', null));
+$('#themeBtn').onclick = () => {
+  const cur = document.documentElement.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  store.set('theme', next); applyTheme(next);
+};
+
+/* ---------- chips ---------- */
+function renderChips(){
+  const list = [
+    { id:'all',  label:'ทั้งหมด', emoji:'✨', n: LINKS.length },
+    { id:'fav',  label:'รายการโปรด', emoji:'⭐', n: favs.size },
+    ...Object.entries(CATS).map(([id,c]) => ({ id, label:c.label, emoji:c.emoji, n: LINKS.filter(l=>l.cat===id).length }))
+  ];
+  $('#chips').innerHTML = list.map(c =>
+    `<button class="chip ${filter===c.id?'active':''}" data-f="${c.id}">${c.emoji} ${c.label} <span class="n">${c.n}</span></button>`
+  ).join('');
+  document.querySelectorAll('.chip').forEach(b => b.onclick = () => { filter = b.dataset.f; render(); });
+}
+
+/* ---------- cards ---------- */
+function cardHTML(l, i){
+  const c = CATS[l.cat], idx = LINKS.indexOf(l);
+  const internal = isInternal(l.url);
+  return `
+  <div class="card" style="--c:${c.color}; animation-delay:${i*40}ms">
+    <a class="stretch" href="${l.url}" target="_blank" rel="noopener" data-i="${idx}" aria-label="เปิด ${l.name}"></a>
+    <div class="c-top">
+      <div class="c-ico">${l.icon}</div>
+      <button class="star ${favs.has(idx)?'on':''}" data-star="${idx}" title="ปักหมุดรายการโปรด" aria-label="รายการโปรด">⭐</button>
+    </div>
+    <div class="c-name">${l.name}</div>
+    <p class="c-desc">${l.desc}</p>
+    <div class="c-foot">
+      <span class="badge">${c.emoji} ${c.label}</span>
+      ${internal ? '<span class="badge net">🏢 ภายใน</span>' : ''}
+    </div>
+    <div class="host">${hostOf(l.url)}</div>
+    <span class="go">↗</span>
+  </div>`;
+}
+
+function section(key, title, emoji, color, items){
+  if(!items.length) return '';
+  return `<section class="section">
+    <div class="sec-head" style="--c:${color}">
+      <div class="dot">${emoji}</div><h2>${title}</h2><span class="cnt">${items.length} ระบบ</span>
+    </div>
+    <div class="grid">${items.map(cardHTML).join('')}</div>
+  </section>`;
+}
+
+function render(){
+  renderChips();
+  const q = norm($('#q').value);
+  let items = LINKS.filter(l => {
+    if(filter === 'fav' && !favs.has(LINKS.indexOf(l))) return false;
+    if(filter !== 'all' && filter !== 'fav' && l.cat !== filter) return false;
+    if(!q) return true;
+    return [l.name, l.desc, CATS[l.cat].label, hostOf(l.url)].some(s => norm(s).includes(q));
+  });
+
+  let html = '';
+  if(!items.length){
+    html = filter === 'fav' && !q
+      ? `<div class="empty"><span class="big">⭐</span>ยังไม่มีรายการโปรด<br>กดดาวบนการ์ดเพื่อปักหมุดระบบที่ใช้บ่อย</div>`
+      : `<div class="empty"><span class="big">🙈</span>ไม่เจอระบบที่ค้นหา ลองคำอื่นดูนะ</div>`;
+  } else if(q || filter !== 'all'){
+    html = section('r', q ? `ผลการค้นหา “${$('#q').value.trim()}”` : (filter==='fav' ? 'รายการโปรด' : CATS[filter].label),
+                   q ? '🔍' : (filter==='fav' ? '⭐' : CATS[filter].emoji),
+                   filter in CATS ? CATS[filter].color : 'var(--brand)', items);
+  } else {
+    // หน้าแรก: รายการโปรด + ใช้บ่อย + แยกตามแผนก
+    const favItems = LINKS.filter((l,i) => favs.has(i));
+    if(favItems.length) html += section('fav','รายการโปรดของคุณ','⭐','#f5a524', favItems);
+    const top = Object.entries(clicks).sort((a,b)=>b[1]-a[1]).map(([i])=>LINKS[+i]).filter(Boolean)
+                 .filter(l => !favs.has(LINKS.indexOf(l))).slice(0,4);
+    if(top.length) html += section('top','ใช้บ่อย','🔥','var(--brand2)', top);
+    for(const [k,c] of Object.entries(CATS)) html += section(k, c.label, c.emoji, c.color, LINKS.filter(l=>l.cat===k));
+  }
+  $('#list').innerHTML = html;
+  $('#total').textContent = `${LINKS.length} ระบบ ใน ${Object.keys(CATS).length} หมวด`;
+}
+
+/* ---------- interactions ---------- */
+function burst(x, y, emojis){
+  for(let i=0;i<10;i++){
+    const s = document.createElement('span');
+    s.className = 'burst';
+    s.textContent = emojis[i % emojis.length];
+    const a = Math.random()*Math.PI*2, d = 50 + Math.random()*70;
+    s.style.left = x+'px'; s.style.top = y+'px';
+    s.style.setProperty('--dx', Math.cos(a)*d+'px');
+    s.style.setProperty('--dy', Math.sin(a)*d - 30+'px');
+    s.style.setProperty('--r', (Math.random()*360)+'deg');
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(), 900);
+  }
+}
+let toastT;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+$('#list').addEventListener('click', e => {
+  const st = e.target.closest('[data-star]');
+  if(st){
+    const i = +st.dataset.star;
+    if(favs.has(i)){ favs.delete(i); toast('เอาออกจากรายการโปรดแล้ว'); }
+    else { favs.add(i); burst(e.clientX, e.clientY, ['⭐','✨','💛']); toast('ปักหมุด “'+LINKS[i].name+'” แล้ว ⭐'); }
+    store.set('favs', [...favs]);
+    render(); return;
+  }
+  const a = e.target.closest('a.stretch');
+  if(a){
+    const i = a.dataset.i;
+    clicks[i] = (clicks[i]||0) + 1; store.set('clicks', clicks);
+    burst(e.clientX, e.clientY, ['🚀','✨','🎉']);
+    toast('กำลังเปิด ' + LINKS[i].name + ' 🚀');
+  }
+});
+
+$('#q').addEventListener('input', render);
+$('#q').addEventListener('keydown', e => {
+  if(e.key === 'Enter'){
+    const first = document.querySelector('#list a.stretch');
+    if(first) first.click();
+  }
+  if(e.key === 'Escape'){ e.target.value = ''; render(); }
+});
+document.addEventListener('keydown', e => {
+  if(e.key === '/' && document.activeElement !== $('#q')){ e.preventDefault(); $('#q').focus(); }
+});
+
+render();
+</script>
+</body>
+</html>
