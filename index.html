@@ -186,6 +186,7 @@ const CATS = {
 
 const LINKS = [
   { cat:'central', icon:'🏖️', name:'แจ้งลาออนไลน์',       desc:'ยื่นใบลาและตรวจสอบวันลา (ESS)',     url:'http://sfc.sungroup.co.th:8084/ess/' },
+  { cat:'central', icon:'🗓️', name:'จัดการตารางกะ',         desc:'จัดตารางกะและวันลาของทีม',          url:'http://dss.sungroup.co.th/oprf-la' },
   { cat:'central', icon:'📦', name:'เบิกของออนไลน์',       desc:'สร้างใบเบิกของผ่าน Inventory Plus', url:'http://smartweb.sungroup.co.th:8082/InventoryPlus/InventoryPlus/login?redirect=%2FInventoryPlus%2Frequisition%2Fcreate%2F' },
   { cat:'central', icon:'💡', name:'ไคเซ็นออนไลน์',        desc:'ส่งไอเดียปรับปรุงงาน Kaizen',       url:'http://smartweb.sungroup.co.th:8082/Kaizen/#/kaizen' },
   { cat:'central', icon:'📊', name:'KPI',                  desc:'ติดตามตัวชี้วัดของแผนก',             url:'https://sunfood-kpi.pages.dev/#dept=8' },
@@ -203,8 +204,10 @@ const store = {
   get(k, d){ try{ const v = localStorage.getItem('webhub.'+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
   set(k, v){ try{ localStorage.setItem('webhub.'+k, JSON.stringify(v)); }catch(e){} }
 };
-let favs   = new Set(store.get('favs', []));
-let clicks = store.get('clicks', {});
+// เก็บตาม URL (ไม่ใช่ลำดับ) เพื่อให้เพิ่ม/สลับลิงก์แล้วรายการโปรดไม่เพี้ยน
+const isUrl = k => typeof k === 'string' && k.includes('://');
+let favs   = new Set(store.get('favs', []).filter(isUrl));
+let clicks = Object.fromEntries(Object.entries(store.get('clicks', {})).filter(([k]) => isUrl(k)));
 let filter = 'all';
 
 const $ = s => document.querySelector(s);
@@ -240,7 +243,7 @@ $('#themeBtn').onclick = () => {
 function renderChips(){
   const list = [
     { id:'all',  label:'ทั้งหมด', emoji:'✨', n: LINKS.length },
-    { id:'fav',  label:'รายการโปรด', emoji:'⭐', n: favs.size },
+    { id:'fav',  label:'รายการโปรด', emoji:'⭐', n: LINKS.filter(l=>favs.has(l.url)).length },
     ...Object.entries(CATS).map(([id,c]) => ({ id, label:c.label, emoji:c.emoji, n: LINKS.filter(l=>l.cat===id).length }))
   ];
   $('#chips').innerHTML = list.map(c =>
@@ -258,7 +261,7 @@ function cardHTML(l, i){
     <a class="stretch" href="${l.url}" target="_blank" rel="noopener" data-i="${idx}" aria-label="เปิด ${l.name}"></a>
     <div class="c-top">
       <div class="c-ico">${l.icon}</div>
-      <button class="star ${favs.has(idx)?'on':''}" data-star="${idx}" title="ปักหมุดรายการโปรด" aria-label="รายการโปรด">⭐</button>
+      <button class="star ${favs.has(l.url)?'on':''}" data-star="${idx}" title="ปักหมุดรายการโปรด" aria-label="รายการโปรด">⭐</button>
     </div>
     <div class="c-name">${l.name}</div>
     <p class="c-desc">${l.desc}</p>
@@ -285,7 +288,7 @@ function render(){
   renderChips();
   const q = norm($('#q').value);
   let items = LINKS.filter(l => {
-    if(filter === 'fav' && !favs.has(LINKS.indexOf(l))) return false;
+    if(filter === 'fav' && !favs.has(l.url)) return false;
     if(filter !== 'all' && filter !== 'fav' && l.cat !== filter) return false;
     if(!q) return true;
     return [l.name, l.desc, CATS[l.cat].label, hostOf(l.url)].some(s => norm(s).includes(q));
@@ -302,10 +305,10 @@ function render(){
                    filter in CATS ? CATS[filter].color : 'var(--brand)', items);
   } else {
     // หน้าแรก: รายการโปรด + ใช้บ่อย + แยกตามแผนก
-    const favItems = LINKS.filter((l,i) => favs.has(i));
+    const favItems = LINKS.filter(l => favs.has(l.url));
     if(favItems.length) html += section('fav','รายการโปรดของคุณ','⭐','#f5a524', favItems);
-    const top = Object.entries(clicks).sort((a,b)=>b[1]-a[1]).map(([i])=>LINKS[+i]).filter(Boolean)
-                 .filter(l => !favs.has(LINKS.indexOf(l))).slice(0,4);
+    const top = Object.entries(clicks).sort((a,b)=>b[1]-a[1]).map(([u])=>LINKS.find(l=>l.url===u)).filter(Boolean)
+                 .filter(l => !favs.has(l.url)).slice(0,4);
     if(top.length) html += section('top','ใช้บ่อย','🔥','var(--brand2)', top);
     for(const [k,c] of Object.entries(CATS)) html += section(k, c.label, c.emoji, c.color, LINKS.filter(l=>l.cat===k));
   }
@@ -337,16 +340,16 @@ function toast(msg){
 $('#list').addEventListener('click', e => {
   const st = e.target.closest('[data-star]');
   if(st){
-    const i = +st.dataset.star;
-    if(favs.has(i)){ favs.delete(i); toast('เอาออกจากรายการโปรดแล้ว'); }
-    else { favs.add(i); burst(e.clientX, e.clientY, ['⭐','✨','💛']); toast('ปักหมุด “'+LINKS[i].name+'” แล้ว ⭐'); }
+    const i = +st.dataset.star, u = LINKS[i].url;
+    if(favs.has(u)){ favs.delete(u); toast('เอาออกจากรายการโปรดแล้ว'); }
+    else { favs.add(u); burst(e.clientX, e.clientY, ['⭐','✨','💛']); toast('ปักหมุด “'+LINKS[i].name+'” แล้ว ⭐'); }
     store.set('favs', [...favs]);
     render(); return;
   }
   const a = e.target.closest('a.stretch');
   if(a){
     const i = a.dataset.i;
-    clicks[i] = (clicks[i]||0) + 1; store.set('clicks', clicks);
+    const u = LINKS[i].url; clicks[u] = (clicks[u]||0) + 1; store.set('clicks', clicks);
     burst(e.clientX, e.clientY, ['🚀','✨','🎉']);
     toast('กำลังเปิด ' + LINKS[i].name + ' 🚀');
   }
